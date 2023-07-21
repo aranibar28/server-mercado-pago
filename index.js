@@ -20,33 +20,47 @@ const headers = {
   Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
 };
 
-app.get('/', (req, res) =>
-  res.json({
-    server: 'online',
-    endonpoints: [
-      {
-        post: 'http://localhost:3000/api/preapproval',
-        json: {
-          reason: 'PLAN MENSUAL',
-          payer_email: 'aranibar28@gmail.com',
-          auto_recurring: {
-            frequency: 1,
-            frequency_type: 'months',
-            billing_day: 10,
-            billing_day_proportional: false,
-            free_trial: {
-              frequency: 1,
-              frequency_type: 'months',
-            },
-            transaction_amount: 30,
-            currency_id: 'PEN',
-          },
-          back_url: 'https://www.yoursite.com',
-        },
-      },
-    ],
-  }),
-);
+app.get('/', (req, res) => res.json({ server: 'online' }));
+
+app.get('/preapproval', async (req, res) => {
+  try {
+    const response = await axios.get('https://api.mercadopago.com/preapproval/search?limit=50', { headers });
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response ? error.response.status : 500).json({ error: error.message });
+  }
+});
+
+app.get('/preapproval/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const response = await axios.get('https://api.mercadopago.com/preapproval/' + id, { headers });
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response ? error.response.status : 500).json({ error: error.message });
+  }
+});
+
+app.post('/preapproval', async (req, res) => {
+  const data = req.body;
+  try {
+    const response = await axios.post('https://api.mercadopago.com/preapproval', data, { headers });
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response ? error.response.status : 500).json({ error: error.message });
+  }
+});
+
+app.put('/preapproval/:id', async (req, res) => {
+  const { id } = req.params;
+  const data = req.body;
+  try {
+    const response = await axios.put('https://api.mercadopago.com/preapproval/' + id, data, { headers });
+    res.json(response.data);
+  } catch (error) {
+    res.status(error.response ? error.response.status : 500).json({ error: error.message });
+  }
+});
 
 app.get('/preapproval_plan', async (req, res) => {
   try {
@@ -128,7 +142,7 @@ app.get('/api/search_plans', async (req, res) => {
     mercadopago.preapproval
       .search()
       .then((response) => {
-        res.json(response);
+        res.json(response.response);
       })
       .catch((error) => {
         res.status(500).json({ msg: error.message });
