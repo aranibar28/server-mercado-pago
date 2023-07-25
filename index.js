@@ -102,6 +102,47 @@ app.put('/preapproval_plan/:id', async (req, res) => {
   }
 });
 
+app.post('/process_payment', (req, res) => {
+  const data = req.body;
+  console.log(data);
+
+  try {
+    const paymentData = {
+      transaction_amount: Number(data.transactionAmount),
+      token: data.token,
+      description: data.description,
+      installments: Number(data.installments),
+      payment_method_id: data.paymentMethodId,
+      issuer_id: data.issuerId,
+      payer: {
+        email: payer.email,
+        identification: {
+          type: payer.identification.docType,
+          number: payer.identification.docNumber,
+        },
+      },
+    };
+
+    mercadopago.payment
+      .save(paymentData)
+      .then(function (response) {
+        const { response: data } = response;
+
+        res.status(201).json({
+          detail: data.status_detail,
+          status: data.status,
+          id: data.id,
+        });
+      })
+      .catch(function (error) {
+        const { errorMessage, errorStatus } = validateError(error);
+        res.status(errorStatus).json({ error_message: errorMessage });
+      });
+  } catch (error) {
+    return res.json(error);
+  }
+});
+
 // CREAR PLAN
 app.post('/api/preapproval', async (req, res) => {
   let data = req.body;
