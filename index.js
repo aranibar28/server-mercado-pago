@@ -24,7 +24,7 @@ app.get('/', (req, res) => res.json({ server: 'online' }));
 
 app.get('/preapproval', async (req, res) => {
   try {
-    const response = await axios.get('https://api.mercadopago.com/preapproval/search?limit=50', { headers });
+    const response = await axios.get('https://api.mercadopago.com/preapproval/search?limit=1000', { headers });
     res.json(response.data);
   } catch (error) {
     res.status(error.response ? error.response.status : 500).json({ error: error.message });
@@ -64,7 +64,7 @@ app.put('/preapproval/:id', async (req, res) => {
 
 app.get('/preapproval_plan', async (req, res) => {
   try {
-    const response = await axios.get('https://api.mercadopago.com/preapproval_plan/search?limit=50', { headers });
+    const response = await axios.get('https://api.mercadopago.com/preapproval_plan/search?limit=1000', { headers });
     res.json(response.data);
   } catch (error) {
     res.status(error.response ? error.response.status : 500).json({ error: error.message });
